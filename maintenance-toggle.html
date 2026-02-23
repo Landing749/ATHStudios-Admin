@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#09090C"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+  <title>Maintenance Toggle</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#09090C;--s1:#0F0F13;--s2:#141418;
+      --plat:#EDEDED;--faint:rgba(196,196,200,.42);--muted:#C4C4C8;
+      --green:#22C55E;--red:#EF4444;--blue:#3A4A9F;--blue2:#2D3561;
+      --gold:#B8A078;
+      --serif:'Georgia',serif;
+      --mono:'Courier New',monospace;
+      --ease:cubic-bezier(.22,1,.36,1);
+    }
+
+    html,body{
+      height:100%;width:100%;
+      background:var(--bg);
+      color:var(--plat);
+      font-family:-apple-system,'DM Sans',sans-serif;
+      -webkit-font-smoothing:antialiased;
+      overflow:hidden;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    /* ── SAFE AREA ── */
+    .screen{
+      position:fixed;inset:0;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      padding:env(safe-area-inset-top,20px) env(safe-area-inset-right,20px)
+              env(safe-area-inset-bottom,20px) env(safe-area-inset-left,20px);
+      gap:0;
+    }
+
+    /* ── STATES ── */
+    .screen{transition:background .5s var(--ease)}
+    .screen.state-loading {background:var(--bg)}
+    .screen.state-on      {background:#0a1a0a}   /* deep green tint */
+    .screen.state-off     {background:#1a0a0a}   /* deep red tint   */
+    .screen.state-error   {background:#12100a}
+
+    /* ── GLOW ── */
+    .glow{
+      position:absolute;top:50%;left:50%;
+      width:380px;height:380px;
+      transform:translate(-50%,-52%);
+      border-radius:50%;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .6s var(--ease), background .5s var(--ease);
+    }
+    .state-loading .glow{opacity:.12;background:radial-gradient(circle,rgba(58,74,159,.8),transparent 70%)}
+    .state-on      .glow{opacity:.18;background:radial-gradient(circle,rgba(34,197,94,.8),transparent 70%)}
+    .state-off     .glow{opacity:.18;background:radial-gradient(circle,rgba(239,68,68,.8),transparent 70%)}
+    .state-error   .glow{opacity:.12;background:radial-gradient(circle,rgba(245,158,11,.6),transparent 70%)}
+
+    /* ── LOGO ── */
+    .logo{
+      font-family:var(--serif);
+      font-style:italic;font-weight:300;
+      font-size:1.5rem;letter-spacing:.05em;
+      color:rgba(237,237,237,.35);
+      margin-bottom:3rem;
+      position:relative;z-index:1;
+    }
+
+    /* ── BIG ICON ── */
+    .icon-wrap{
+      position:relative;z-index:1;
+      width:96px;height:96px;
+      display:flex;align-items:center;justify-content:center;
+      margin-bottom:2rem;
+    }
+    .icon-ring{
+      position:absolute;inset:0;border-radius:50%;
+      border:1.5px solid rgba(237,237,237,.08);
+      transition:border-color .5s var(--ease), box-shadow .5s var(--ease);
+    }
+    .state-on  .icon-ring{border-color:rgba(34,197,94,.4); box-shadow:0 0 32px rgba(34,197,94,.2)}
+    .state-off .icon-ring{border-color:rgba(239,68,68,.4); box-shadow:0 0 32px rgba(239,68,68,.2)}
+
+    /* Spinner for loading */
+    .spinner{
+      width:40px;height:40px;
+      border:1.5px solid rgba(237,237,237,.08);
+      border-top-color:rgba(237,237,237,.4);
+      border-radius:50%;
+      animation:spin .9s linear infinite;
+      position:absolute;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .state-on  .spinner,
+    .state-off .spinner,
+    .state-error .spinner{display:none}
+
+    /* Status SVG icon */
+    .status-icon{
+      opacity:0;transform:scale(.6);
+      transition:opacity .4s .1s var(--ease), transform .4s .1s var(--ease);
+    }
+    .state-on  .status-icon,
+    .state-off .status-icon,
+    .state-error .status-icon{opacity:1;transform:scale(1)}
+    .icon-on  {color:var(--green)}
+    .icon-off {color:var(--red)}
+    .icon-err {color:#F59E0B}
+
+    /* ── TEXT ── */
+    .status-label{
+      position:relative;z-index:1;
+      font-size:1.5rem;font-weight:700;letter-spacing:-.01em;
+      text-align:center;
+      opacity:0;transform:translateY(8px);
+      transition:opacity .4s .15s var(--ease), transform .4s .15s var(--ease), color .4s;
+    }
+    .state-on  .status-label,
+    .state-off .status-label,
+    .state-error .status-label{opacity:1;transform:translateY(0)}
+    .state-on  .status-label{color:var(--green)}
+    .state-off .status-label{color:var(--red)}
+    .state-error .status-label{color:#F59E0B}
+
+    .status-sub{
+      position:relative;z-index:1;
+      font-size:.8125rem;color:var(--faint);
+      text-align:center;margin-top:.4rem;
+      font-family:var(--mono);letter-spacing:.04em;
+      opacity:0;
+      transition:opacity .4s .25s var(--ease);
+    }
+    .state-on  .status-sub,
+    .state-off .status-sub,
+    .state-error .status-sub{opacity:1}
+
+    /* ── LOADING TEXT ── */
+    .loading-label{
+      position:relative;z-index:1;
+      font-family:var(--mono);font-size:.75rem;
+      letter-spacing:.1em;color:var(--faint);
+      margin-top:2rem;text-align:center;
+      animation:pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+    .state-on  .loading-label,
+    .state-off .loading-label,
+    .state-error .loading-label{display:none}
+
+    /* ── BACK LINK ── */
+    .back-link{
+      position:absolute;
+      bottom:calc(env(safe-area-inset-bottom,20px) + 1.5rem);
+      left:50%;transform:translateX(-50%);
+      font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;
+      color:rgba(196,196,200,.3);
+      text-decoration:none;
+      z-index:2;
+      opacity:0;
+      transition:opacity .5s .4s var(--ease), color .2s;
+      white-space:nowrap;
+    }
+    .state-on  .back-link,
+    .state-off .back-link,
+    .state-error .back-link{opacity:1}
+    .back-link:hover{color:var(--muted)}
+
+    /* ── TAP FEEDBACK ── */
+    body:active .icon-ring{transform:scale(.95)}
+  </style>
+</head>
+<body>
+
+<div class="screen state-loading" id="screen">
+  <div class="glow"></div>
+  <div class="logo">ATHStudios</div>
+
+  <div class="icon-wrap">
+    <div class="icon-ring"></div>
+
+    <!-- Loading spinner -->
+    <div class="spinner"></div>
+
+    <!-- Success: maintenance ON -->
+    <svg class="status-icon icon-on" id="icon-on" style="display:none"
+         width="40" height="40" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.07 4.93l-1.41 1.41M6.34 17.66l-1.41 1.41M2 12h2M20 12h2M19.07 19.07l-1.41-1.41M6.34 6.34L4.93 4.93M12 2v2M12 20v2"/>
+    </svg>
+
+    <!-- Success: maintenance OFF (site live) -->
+    <svg class="status-icon icon-off" id="icon-off" style="display:none"
+         width="40" height="40" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+
+    <!-- Error -->
+    <svg class="status-icon icon-err" id="icon-err" style="display:none"
+         width="36" height="36" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+  </div>
+
+  <div class="status-label" id="status-label"></div>
+  <div class="status-sub"   id="status-sub"></div>
+
+  <div class="loading-label">Checking site status…</div>
+
+  <a class="back-link" href="index.html" id="back-link">← Open Admin Console</a>
+</div>
+
+<!-- Firebase REST — no SDK needed, just one fetch -->
+<script>
+const FIREBASE_DB  = 'https://athstudios-18004-default-rtdb.firebaseio.com';
+const MAINT_PATH   = 'settings/maintenance';
+const LOGS_PATH    = 'admin/logs/maintenance';
+
+const screen       = document.getElementById('screen');
+const statusLabel  = document.getElementById('status-label');
+const statusSub    = document.getElementById('status-sub');
+
+/* ── Show correct icon ── */
+function showIcon(which){
+  ['on','off','err'].forEach(k=>{
+    document.getElementById('icon-'+k).style.display = k===which ? '' : 'none';
+  });
+}
+
+/* ── Set final state ── */
+function setState(state, label, sub){
+  screen.className = 'screen state-'+state;
+  statusLabel.textContent = label;
+  statusSub.textContent   = sub;
+  if(state==='on')    showIcon('on');
+  else if(state==='off') showIcon('off');
+  else                showIcon('err');
+}
+
+/* ── Firebase REST helpers ── */
+async function fbGet(path){
+  const res = await fetch(`${FIREBASE_DB}/${path}.json`);
+  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+async function fbSet(path, value){
+  const res = await fetch(`${FIREBASE_DB}/${path}.json`,{
+    method : 'PUT',
+    headers: {'Content-Type':'application/json'},
+    body   : JSON.stringify(value),
+  });
+  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+async function fbPush(path, value){
+  await fetch(`${FIREBASE_DB}/${path}.json`,{
+    method : 'POST',
+    headers: {'Content-Type':'application/json'},
+    body   : JSON.stringify(value),
+  });
+}
+
+/* ── Main toggle logic ── */
+async function toggleMaintenance(){
+  try{
+    /* 1. Read current state */
+    const current = await fbGet(MAINT_PATH);
+    const wasEnabled = current?.enabled === true;
+    const nowEnabled = !wasEnabled;
+
+    /* 2. Write flipped state, preserving all existing fields */
+    await fbSet(MAINT_PATH, {
+      enabled     : nowEnabled,
+      label       : current?.label        || 'Under Maintenance',
+      message     : current?.message      || '',
+      eta         : current?.eta          || '',
+      previewToken: current?.previewToken || crypto.randomUUID?.().slice(0,12) || Math.random().toString(36).slice(2,10),
+    });
+
+    /* 3. Log the event */
+    await fbPush(LOGS_PATH, {
+      action : nowEnabled ? 'enabled' : 'disabled',
+      ts     : Date.now(),
+      source : 'shortcut',
+    });
+
+    /* 4. Show result */
+    if(nowEnabled){
+      setState('on',
+        '🔴 Maintenance On',
+        'Site is down for visitors'
+      );
+    } else {
+      setState('off',
+        '🟢 Site is Live',
+        'Maintenance mode disabled'
+      );
+    }
+
+  } catch(err){
+    console.error(err);
+    setState('error',
+      'Failed',
+      err.message || 'Could not reach Firebase'
+    );
+  }
+}
+
+/* Run immediately */
+toggleMaintenance();
+</script>
+</body>
+</html>
