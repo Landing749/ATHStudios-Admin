@@ -249,6 +249,25 @@
     .cfm-box p{font-size:.875rem;color:var(--muted);line-height:1.6;margin-bottom:1.375rem}
     .cfm-acts{display:flex;gap:.5rem;justify-content:flex-end}
 
+    /* ─── SHARE RECEIVED MODAL ─── */
+    #share-ov{position:fixed;inset:0;z-index:800;background:rgba(9,9,12,.82);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .25s}
+    #share-ov.open{opacity:1;pointer-events:auto}
+    #share-box{background:var(--s1);border:1px solid var(--bord2);width:100%;max-width:460px;transform:scale(.96);transition:transform .26s var(--ease)}
+    #share-ov.open #share-box{transform:scale(1)}
+    .share-head{padding:1.125rem 1.5rem;border-bottom:1px solid var(--bord);display:flex;align-items:center;justify-content:space-between}
+    .share-badge{font-family:var(--sc);font-size:.58rem;letter-spacing:.2em;color:var(--gold);background:rgba(184,160,120,.08);border:1px solid rgba(184,160,120,.18);padding:.2rem .6rem}
+    .share-preview{padding:1rem 1.5rem;border-bottom:1px solid var(--bord);display:flex;flex-direction:column;gap:.5rem}
+    .share-field{background:var(--s2);border:1px solid var(--bord);padding:.55rem .75rem}
+    .share-field-lbl{font-family:var(--sc);font-size:.58rem;letter-spacing:.18em;color:var(--faint);margin-bottom:.2rem}
+    .share-field-val{font-size:.8rem;color:var(--muted);word-break:break-all;line-height:1.5}
+    .share-field-val a{color:#8B97E8;text-decoration:none}.share-field-val a:hover{text-decoration:underline}
+    .share-actions{padding:1rem 1.5rem;display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}
+    @media(pointer:coarse){
+      #share-box{max-width:100%}
+      #share-ov{align-items:flex-end;padding:0}
+      #share-box{border-radius:0;border-bottom:none}
+    }
+
     /* ─── MAINT PILL ─── */
     #maint-pill{display:inline-flex;align-items:center;gap:.375rem;padding:.22rem .7rem;font-family:var(--sc);font-weight:300;font-size:.62rem;letter-spacing:.1em;border-radius:20px}
     .mp-live{background:rgba(34,197,94,.12);color:var(--green)}.mp-maint{background:rgba(239,68,68,.12);color:var(--red)}
@@ -590,6 +609,49 @@
 <div id="toasts"></div>
 <div id="cfm-ov"><div class="cfm-box"><h3 id="cfm-title">Confirm</h3><p id="cfm-msg"></p><div class="cfm-acts"><button class="btn btn-ghost" id="cfm-no">Cancel</button><button class="btn btn-danger" id="cfm-yes">Confirm</button></div></div></div>
 
+<!-- ── SHARE RECEIVED MODAL ── -->
+<div id="share-ov">
+  <div id="share-box">
+    <div class="share-head">
+      <div>
+        <div style="display:flex;align-items:center;gap:.625rem;margin-bottom:.25rem">
+          <span class="share-badge">SHARED CONTENT</span>
+        </div>
+        <div style="font-size:.9375rem;font-weight:600">Content received</div>
+        <div style="font-family:var(--sc);font-size:.65rem;letter-spacing:.07em;color:var(--faint);margin-top:.15rem">What do you want to do with this?</div>
+      </div>
+      <button onclick="closeShare()" style="background:none;color:var(--faint);padding:.35rem;border:1px solid var(--bord);transition:color .2s" onmouseover="this.style.color='var(--plat)'" onmouseout="this.style.color='var(--faint)'">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="share-preview" id="share-preview-fields">
+      <!-- Populated by JS -->
+    </div>
+    <!-- Attach to inquiry -->
+    <div style="padding:.875rem 1.5rem;border-bottom:1px solid var(--bord)">
+      <div style="font-family:var(--sc);font-size:.62rem;letter-spacing:.15em;color:var(--faint);margin-bottom:.5rem">Attach to inquiry</div>
+      <select id="share-inq-sel" style="width:100%;background:var(--s2);border:1px solid var(--bord);padding:.5rem .75rem;font-size:.8375rem;color:var(--plat);outline:none;font-family:var(--font);appearance:none">
+        <option value="">— Select an inquiry —</option>
+      </select>
+    </div>
+    <div class="share-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeShare()">Dismiss</button>
+      <button class="btn btn-ghost btn-sm" onclick="shareCopyAll()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy
+      </button>
+      <button class="btn btn-amber btn-sm" onclick="shareAsNote()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Add as Note
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="shareOpenInquiries()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        View Inquiries
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ── BOTTOM NAV (phones & tablets) ── -->
 <nav id="bottom-nav">
   <div class="bn-inner">
@@ -751,7 +813,12 @@
       <div class="tb-right">
         <span class="status-dot" title="Firebase connected"></span>
         <span class="tb-clock" id="tb-clock"></span>
-        <a href="index.html" target="_blank" class="btn btn-ghost btn-sm">
+        <!-- PWA Install button — hidden until browser fires beforeinstallprompt -->
+        <button id="pwa-install-btn" style="display:none" class="btn btn-ghost btn-sm" onclick="triggerInstall()" title="Install as app">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span class="btn-label">Install</span>
+        </button>
+        <a href="/" target="_blank" class="btn btn-ghost btn-sm">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           <span class="btn-label">View Site</span>
         </a>
@@ -870,7 +937,12 @@
 
     <!-- MAINTENANCE -->
     <div class="panel" id="panel-maintenance">
-      <div class="sh"><h2>Maintenance Mode</h2><span id="maint-pill" class="mp-live"><span>●</span> Live</span></div>
+      <div class="sh"><h2>Maintenance Mode</h2>
+        <div style="display:flex;align-items:center;gap:.625rem">
+          <span id="maint-pill" class="mp-live"><span>●</span> Live</span>
+          <button class="btn btn-sm" id="maint-quick-toggle" onclick="quickToggleMaint()" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);min-width:110px">Enable</button>
+        </div>
+      </div>
       <div class="sg">
         <div class="card">
           <h3>Site Status</h3>
@@ -1224,30 +1296,179 @@ window.dispatchEvent(new Event('fb-ready'));
 })();
 </script>
 
-<!-- ── SERVICE WORKER REGISTRATION ── -->
+<!-- ── SERVICE WORKER + PUSH NOTIFICATIONS ── -->
 <script>
+/* ═══════════════════════════════════════════════════════
+   ATH — Push Notification Engine
+   No FCM, no server. Two-path detection:
+     PATH A: Tab open/hidden  → Firebase live listener
+             sees new inquiry → posts NEW_INQUIRY to SW
+             → SW fires notification immediately
+     PATH B: Tab closed       → Periodic Background Sync
+             wakes SW every ~5 min → SW polls Firebase
+             REST API → fires notification for unseen ones
+═══════════════════════════════════════════════════════ */
+
+const ATH_FIREBASE_CONFIG = {
+  apiKey     : 'AIzaSyDD-fr24tSTymu9HwDNSTygLzYhQzyiOkM',
+  databaseURL: 'https://athstudios-18004-default-rtdb.firebaseio.com',
+};
+
+/* ── Helper: send message to active SW ── */
+function swPost(msg) {
+  if (navigator.serviceWorker?.controller) {
+    navigator.serviceWorker.controller.postMessage(msg);
+  }
+}
+
+/* ── Request notification permission + register periodic sync ── */
+async function setupPushNotifications(swReg) {
+  /* 1. Ask for permission */
+  if (!('Notification' in window)) return;
+
+  let perm = Notification.permission;
+  if (perm === 'default') {
+    perm = await Notification.requestPermission();
+  }
+  if (perm !== 'granted') {
+    console.warn('[ATH-Push] Notification permission denied');
+    return;
+  }
+
+  /* 2. Send Firebase config to SW so it can call REST API */
+  swPost({ type: 'FIREBASE_CONFIG', payload: ATH_FIREBASE_CONFIG });
+
+  /* 3. Register Periodic Background Sync (works when tab is closed) */
+  if ('periodicSync' in swReg) {
+    try {
+      const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+      if (status.state === 'granted') {
+        await swReg.periodicSync.register('ath-inquiry-check', {
+          minInterval: 5 * 60 * 1000, // 5 minutes (browser may delay more)
+        });
+        console.log('[ATH-Push] Periodic Background Sync registered');
+      }
+    } catch (e) {
+      console.warn('[ATH-Push] Periodic sync not available:', e.message);
+    }
+  }
+
+  console.log('[ATH-Push] Push notifications ready ✓');
+}
+
+/* ── Listen for messages FROM the service worker ── */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    /* SW flushed offline queue */
+    if (e.data?.type === 'SYNC_COMPLETE') {
+      const { synced, failed } = e.data;
+      if (synced && typeof toast === 'function')
+        toast(`✓ Synced ${synced} queued change${synced > 1 ? 's' : ''} to Firebase`, 's');
+      if (failed && typeof toast === 'function')
+        toast(`${failed} queued change${failed > 1 ? 's' : ''} failed to sync`, 'e');
+    }
+
+    /* Notification clicked → open drawer for that inquiry */
+    if (e.data?.type === 'OPEN_INQUIRY' && e.data.id) {
+      /* Nav to inquiries panel and open the drawer */
+      if (typeof nav === 'function') nav('inquiries');
+      setTimeout(() => {
+        if (typeof openDr === 'function') openDr(e.data.id);
+      }, 300);
+    }
+  });
+}
+
+/* ── Register SW ── */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
-      .then(reg => {
+      .then(async reg => {
         console.log('[ATH-SW] Registered, scope:', reg.scope);
 
-        /* Prompt user when a new SW version is waiting */
+        /* New version waiting — notify admin */
         reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              /* New version available — show a subtle toast */
-              if(typeof toast === 'function'){
+          const nw = reg.installing;
+          nw.addEventListener('statechange', () => {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+              if (typeof toast === 'function')
                 toast('Update available — refresh to get the latest version', 'i');
-              }
             }
           });
         });
+
+        /* Wait until SW is active then set up push */
+        const active = reg.active || await new Promise(resolve => {
+          if (reg.installing) reg.installing.addEventListener('statechange', function() {
+            if (this.state === 'activated') resolve(reg.active);
+          });
+          else if (reg.waiting) reg.waiting.addEventListener('statechange', function() {
+            if (this.state === 'activated') resolve(reg.active);
+          });
+          else resolve(reg.active);
+        });
+
+        if (active) await setupPushNotifications(reg);
       })
       .catch(err => console.warn('[ATH-SW] Registration failed:', err));
   });
 }
+
+/* ═══════════════════════════════════════════════════════
+   PATH A — Tab open / hidden
+   Hooks into the existing Firebase live listener.
+   When a genuinely new inquiry arrives (not on first load),
+   fire a notification immediately via the SW.
+═══════════════════════════════════════════════════════ */
+(function() {
+  /* Track IDs from the initial data load so we don't
+     notify for inquiries that were already there */
+  let _initialised   = false;
+  let _knownIds      = new Set();
+
+  /* Called by initApp() after every Firebase live update */
+  window._onInquiriesUpdate = function(allInquiries) {
+    if (!_initialised) {
+      /* First snapshot — just record what exists, don't notify */
+      allInquiries.forEach(inq => _knownIds.add(inq.id));
+      _initialised = true;
+      return;
+    }
+
+    /* Find inquiries we haven't seen before */
+    const brand_new = allInquiries.filter(inq =>
+      !_knownIds.has(inq.id) &&
+      (!inq.status || inq.status === 'new')
+    );
+
+    brand_new.forEach(async inq => {
+      _knownIds.add(inq.id);
+
+      /* Only notify if permission granted */
+      if (Notification.permission !== 'granted') return;
+
+      const typeStr = Array.isArray(inq.projectTypes) && inq.projectTypes.length
+        ? inq.projectTypes.join(', ')
+        : inq.projectType || null;
+
+      /* Post to SW — it owns the notification API */
+      swPost({
+        type   : 'NEW_INQUIRY',
+        payload: {
+          id         : inq.id,
+          name       : inq.fullName    || null,
+          projectType: typeStr,
+          budget     : inq.budget      || null,
+        },
+      });
+
+      /* Also show an in-app toast */
+      if (typeof toast === 'function') {
+        toast(`📬 New inquiry from ${inq.fullName || 'someone'}`, 'i');
+      }
+    });
+  };
+})();
 </script>
 
 <!-- APP LOGIC -->
@@ -1397,6 +1618,10 @@ window.addEventListener('beforeunload',()=>{ setAdminPresence(false); });
 function startApp(){
   document.getElementById('app').classList.add('show');
   setAdminPresence(true);
+  /* Request notification permission now that user has interacted */
+  navigator.serviceWorker?.ready.then(reg => {
+    if(typeof setupPushNotifications==='function') setupPushNotifications(reg);
+  });
   if(typeof window._db==='undefined'){ window.addEventListener('fb-ready',()=>initApp()); }
   else{ initApp(); }
 }
@@ -1414,6 +1639,8 @@ function initApp(){
     if(typeof window._updateTabBadges==='function') window._updateTabBadges();
     if(document.getElementById('panel-overview').classList.contains('active')) buildOverview();
     if(document.getElementById('panel-process').classList.contains('active')) renderProcList();
+    /* ── Push notification check (Path A: tab open/hidden) ── */
+    if(typeof window._onInquiriesUpdate==='function') window._onInquiriesUpdate(ALL);
   });
   // Listen for unread chat messages across all inquiries
   window._db.live('chats', data=>{
@@ -1914,7 +2141,7 @@ function updateTokDisplay(){
   if(t)t.textContent=TOK||'—';
   if(st)st.textContent=TOK||'—';
   const pl=document.getElementById('prev-link');
-  if(pl){ const u=`${location.origin}${location.pathname.replace('admin.html','index.html')}?preview=${TOK}`; pl.href=u; pl.textContent=u; }
+  if(pl){ const u=`${location.origin}${location.pathname}?preview=${TOK}`; pl.href=u; pl.textContent=u; }
 }
 async function regenTok(){
   cfm('Rotate Token','This will invalidate the current preview URL.',async()=>{
@@ -1925,7 +2152,7 @@ async function regenTok(){
 window.regenTok=regenTok;
 function copyTok(){ navigator.clipboard.writeText(TOK).then(()=>toast('Token copied','s')); }
 window.copyTok=copyTok;
-function copyPrevURL(){ const u=`${location.origin}${location.pathname.replace('admin.html','index.html')}?preview=${TOK}`; navigator.clipboard.writeText(u).then(()=>toast('Preview URL copied','s')); }
+function copyPrevURL(){ const u=`${location.origin}${location.pathname}?preview=${TOK}`; navigator.clipboard.writeText(u).then(()=>toast('Preview URL copied','s')); }
 window.copyPrevURL=copyPrevURL;
 
 /* ─── TESTIMONIALS ─── */
@@ -2136,7 +2363,7 @@ async function doSendEmail(){
   const templateId  = EJ_TEMPLATES[templateKey];
   const btn         = document.getElementById('em-send-btn');
   if(!templateId || templateId.startsWith('template_confirm') || templateId.startsWith('template_notify')){
-    toast('Set your Template ID in admin.html (EJ_TEMPLATES)', 'e');
+    toast('Set your Template ID in index.html (EJ_TEMPLATES)', 'e');
     return;
   }
   btn.disabled = true;
@@ -2326,6 +2553,221 @@ window.doSendEmail = doSendEmail;
 
 /* ─── NAV WIRING ─── */
 document.querySelectorAll('.ni[data-p]').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.p,b.dataset.f)));
+
+/* ═══════════════════════════════════════════════════════════════
+   PWA EXTRAS
+   1. App Badging API   — new inquiry count on the icon
+   2. Shortcut handler  — URL params from long-press shortcuts
+   3. Install prompt    — capture + show branded install button
+   4. Quick maintenance — toggle from outside via shortcut
+   5. Share Target      — handle content shared into the app
+═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. APP BADGE ──────────────────────────────────────────── */
+function updateAppBadge(count){
+  if(!('setAppBadge' in navigator)) return;
+  count>0 ? navigator.setAppBadge(count).catch(()=>{}) : navigator.clearAppBadge().catch(()=>{});
+}
+window.updateAppBadge=updateAppBadge;
+
+/* Patch updateStats to also update the OS badge */
+const _origUS=updateStats;
+window.updateStats=function(){
+  _origUS.apply(this,arguments);
+  const nc=parseInt(document.getElementById('s-new')?.textContent||'0',10);
+  updateAppBadge(isNaN(nc)?0:nc);
+};
+
+
+/* ── 2. SHORTCUT URL HANDLER ─────────────────────────────── */
+(function handleShortcut(){
+  const params=new URLSearchParams(location.search);
+  const shortcut=params.get('shortcut');
+  const filter=params.get('filter');
+  const toggle=params.get('toggle');
+  if(!shortcut) return;
+  history.replaceState({},'',location.pathname);
+  function run(){
+    switch(shortcut){
+      case 'maintenance': nav('maintenance'); if(toggle==='1') setTimeout(()=>quickToggleMaint(true),500); break;
+      case 'inquiries':   nav('inquiries',filter||null); break;
+      case 'process':     nav('process'); break;
+      case 'analytics':   nav('analytics'); break;
+    }
+  }
+  let fired=false;
+  const _orig=window.initApp;
+  window.initApp=function(){ _orig.apply(this,arguments); if(!fired){fired=true;setTimeout(run,400);} };
+  setTimeout(()=>{if(!fired){fired=true;run();}},3000);
+})();
+
+
+/* ── 3. INSTALL PROMPT ───────────────────────────────────── */
+let _installPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); _installPrompt=e;
+  const btn=document.getElementById('pwa-install-btn');
+  if(btn) btn.style.display='';
+});
+window.triggerInstall=async function(){
+  if(!_installPrompt) return;
+  _installPrompt.prompt();
+  const {outcome}=await _installPrompt.userChoice;
+  _installPrompt=null;
+  const btn=document.getElementById('pwa-install-btn');
+  if(btn) btn.style.display='none';
+  if(outcome==='accepted') toast('ATHStudios Admin installed ✓','s');
+};
+window.addEventListener('appinstalled',()=>{
+  _installPrompt=null;
+  const btn=document.getElementById('pwa-install-btn');
+  if(btn) btn.style.display='none';
+  toast('App installed successfully','s');
+});
+
+
+/* ── 4. QUICK MAINTENANCE TOGGLE ────────────────────────── */
+window.quickToggleMaint=async function(silent=false){
+  try{
+    const current=await window._db.get('settings/maintenance');
+    const nowEnabled=!(current?.enabled===true);
+    const payload={
+      enabled:nowEnabled,
+      label:current?.label||'Under Maintenance',
+      message:current?.message||'',
+      eta:current?.eta||'',
+      previewToken:current?.previewToken||(Math.random().toString(36).slice(2,10)),
+    };
+    await window._db.set('settings/maintenance',payload);
+    await window._db.push('admin/logs/maintenance',{action:nowEnabled?'enabled':'disabled',ts:Date.now()});
+    const cb=document.getElementById('m-enabled'); if(cb) cb.checked=nowEnabled;
+    updateMaintPill(nowEnabled);
+    updateQuickToggleBtn(nowEnabled);
+    if(!silent) toast(nowEnabled?'🔴 Maintenance enabled':'🟢 Site is now live',nowEnabled?'e':'s');
+  }catch(e){ if(!silent) toast('Toggle failed','e'); }
+};
+function updateQuickToggleBtn(isEnabled){
+  const btn=document.getElementById('maint-quick-toggle'); if(!btn) return;
+  btn.textContent=isEnabled?'Disable':'Enable';
+  btn.style.cssText=isEnabled
+    ?'background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);min-width:110px'
+    :'background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);min-width:110px';
+}
+const _origPill=window.updateMaintPill;
+window.updateMaintPill=function(on){ _origPill.apply(this,arguments); updateQuickToggleBtn(on); };
+
+
+/* ── 5. SHARE TARGET ─────────────────────────────────────────
+   When someone shares a URL or text into ATH Admin (from
+   Chrome share sheet, or the OS share menu), index.html is
+   opened with ?share_title=…&share_text=…&share_url=… params.
+
+   We capture those, show a clean modal, and let the admin:
+     • Copy the shared content to clipboard
+     • Append it as an admin note on any inquiry
+     • Jump straight to the Inquiries panel
+────────────────────────────────────────────────────────────── */
+let _shareData=null;
+
+(function handleShareTarget(){
+  const params=new URLSearchParams(location.search);
+  const title=params.get('share_title')||'';
+  const text =params.get('share_text') ||'';
+  const url  =params.get('share_url')  ||'';
+
+  if(!title&&!text&&!url) return; // not a share
+  _shareData={title,text,url};
+
+  /* Clean the URL immediately */
+  history.replaceState({},'',location.pathname);
+
+  /* Show modal once app is ready */
+  function showShare(){
+    /* Build preview fields */
+    const el=document.getElementById('share-preview-fields');
+    if(!el) return;
+    const fields=[];
+    if(title) fields.push({label:'Title',val:title,plain:true});
+    if(text)  fields.push({label:'Text', val:text, plain:true});
+    if(url)   fields.push({label:'URL',  val:url,  isUrl:true});
+
+    el.innerHTML=fields.map(f=>`
+      <div class="share-field">
+        <div class="share-field-lbl">${f.label}</div>
+        <div class="share-field-val">${f.isUrl?`<a href="${f.val}" target="_blank" rel="noopener">${f.val}</a>`:f.val}</div>
+      </div>`).join('');
+
+    /* Populate inquiry selector */
+    const sel=document.getElementById('share-inq-sel');
+    if(sel&&ALL.length){
+      sel.innerHTML='<option value="">— Select an inquiry —</option>'
+        +ALL.slice(0,40).map(i=>`<option value="${i.id}">${i.fullName||'Unknown'} — ${i.email||''}</option>`).join('');
+    }
+
+    /* Open modal */
+    document.getElementById('share-ov').classList.add('open');
+  }
+
+  /* Wait for app + data to be ready */
+  let shown=false;
+  const _origInit=window.initApp;
+  window.initApp=function(){
+    _origInit.apply(this,arguments);
+    /* initApp sets up the live listener; data arrives shortly after */
+    if(!shown){ shown=true; setTimeout(showShare,800); }
+  };
+  /* Fallback if already initialised */
+  setTimeout(()=>{ if(!shown){ shown=true; showShare(); } },3500);
+})();
+
+/* ── Share modal actions ── */
+function closeShare(){
+  document.getElementById('share-ov').classList.remove('open');
+}
+window.closeShare=closeShare;
+document.getElementById('share-ov')?.addEventListener('click',e=>{
+  if(e.target===document.getElementById('share-ov')) closeShare();
+});
+
+function shareCopyAll(){
+  if(!_shareData) return;
+  const parts=[_shareData.title,_shareData.text,_shareData.url].filter(Boolean);
+  navigator.clipboard.writeText(parts.join('\n')).then(()=>toast('Copied to clipboard','s'));
+}
+window.shareCopyAll=shareCopyAll;
+
+async function shareAsNote(){
+  const sel=document.getElementById('share-inq-sel');
+  const id=sel?.value;
+  if(!id){ toast('Select an inquiry first','e'); return; }
+  if(!_shareData) return;
+
+  const inq=ALL.find(i=>i.id===id);
+  if(!inq){ toast('Inquiry not found','e'); return; }
+
+  const parts=[_shareData.title,_shareData.text,_shareData.url].filter(Boolean);
+  const snippet=parts.join('\n');
+  const existing=inq.adminNotes||'';
+  const timestamp=new Date().toLocaleString('en-PH',{dateStyle:'short',timeStyle:'short'});
+  const newNote=existing
+    ? `${existing}\n\n— Shared ${timestamp} —\n${snippet}`
+    : `— Shared ${timestamp} —\n${snippet}`;
+
+  try{
+    await window._db.update(`inquiries/${id}`,{adminNotes:newNote});
+    toast(`Note added to ${inq.fullName||'inquiry'}`,'s');
+    closeShare();
+    /* Open the drawer so admin can see it */
+    setTimeout(()=>{ nav('inquiries'); setTimeout(()=>openDr(id),200); },100);
+  }catch(e){ toast('Failed to save note','e'); }
+}
+window.shareAsNote=shareAsNote;
+
+function shareOpenInquiries(){
+  closeShare();
+  nav('inquiries');
+}
+window.shareOpenInquiries=shareOpenInquiries;
 </script>
 </body>
 </html>
