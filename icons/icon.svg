@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0F0F13"/>
+      <stop offset="100%" stop-color="#09090C"/>
+    </linearGradient>
+
+    <!-- Blue accent glow behind the letter -->
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#3A4A9F" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#3A4A9F" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Letter gradient: platinum to muted -->
+    <linearGradient id="letterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#EDEDED"/>
+      <stop offset="100%" stop-color="#A0A0A6"/>
+    </linearGradient>
+
+    <!-- Accent line gradient -->
+    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#2D3561"/>
+      <stop offset="100%" stop-color="#3A4A9F"/>
+    </linearGradient>
+
+    <!-- Subtle border gradient -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#EDEDED" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#EDEDED" stop-opacity="0.04"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background fill -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!-- Glow blob -->
+  <ellipse cx="256" cy="240" rx="200" ry="180" fill="url(#glow)"/>
+
+  <!-- Outer border (very subtle) -->
+  <rect x="1" y="1" width="510" height="510" fill="none"
+        stroke="url(#borderGrad)" stroke-width="1.5"/>
+
+  <!-- Corner accent marks — top left -->
+  <line x1="32" y1="32" x2="64" y2="32" stroke="#EDEDED" stroke-opacity="0.12" stroke-width="1"/>
+  <line x1="32" y1="32" x2="32" y2="64" stroke="#EDEDED" stroke-opacity="0.12" stroke-width="1"/>
+
+  <!-- Corner accent marks — bottom right -->
+  <line x1="480" y1="480" x2="448" y2="480" stroke="#EDEDED" stroke-opacity="0.12" stroke-width="1"/>
+  <line x1="480" y1="480" x2="480" y2="448" stroke="#EDEDED" stroke-opacity="0.12" stroke-width="1"/>
+
+  <!-- ── Italic "A" — Cormorant-style geometric serif ── -->
+  <!-- Built from paths to mimic the Great Vibes / Cormorant Garamond italic feel -->
+  <!-- Left diagonal stroke (italic, slightly tilted) -->
+  <path d="M 164 370 L 222 148 Q 228 132 240 128 Q 252 124 258 140 L 316 370"
+        fill="none" stroke="url(#letterGrad)" stroke-width="22"
+        stroke-linecap="round" stroke-linejoin="round"
+        opacity="0.95"/>
+
+  <!-- Crossbar -->
+  <path d="M 186 278 L 294 278"
+        fill="none" stroke="url(#letterGrad)" stroke-width="14"
+        stroke-linecap="round" opacity="0.85"/>
+
+  <!-- Thin hairline serif caps — top -->
+  <line x1="218" y1="148" x2="262" y2="132"
+        stroke="#EDEDED" stroke-opacity="0.35" stroke-width="3"
+        stroke-linecap="round"/>
+
+  <!-- ── Studio dot / period ── -->
+  <circle cx="340" cy="362" r="9" fill="url(#lineGrad)" opacity="0.9"/>
+
+  <!-- ── Bottom label: "Studios" in small caps style ── -->
+  <text x="256" y="432"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="38"
+        font-style="italic"
+        font-weight="300"
+        fill="#EDEDED"
+        fill-opacity="0.28"
+        letter-spacing="12"
+        text-anchor="middle">
+    Studios
+  </text>
+
+  <!-- ── Thin horizontal rule under the A ── -->
+  <line x1="136" y1="388" x2="376" y2="388"
+        stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.5"/>
+</svg>
