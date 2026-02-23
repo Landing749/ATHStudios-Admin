@@ -1,0 +1,73 @@
+{
+  "name": "ATHStudios Admin Console",
+  "short_name": "ATH Admin",
+  "description": "ATHStudios private admin dashboard — manage inquiries, process tracker, maintenance, and more.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#09090C",
+  "theme_color": "#0A0A0D",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Toggle Maintenance",
+      "short_name": "Maintenance",
+      "description": "Quickly enable or disable maintenance mode",
+      "url": "./index.html?shortcut=maintenance",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "⚡ Toggle Maintenance Now",
+      "short_name": "Toggle Now",
+      "description": "Instantly flip maintenance on or off without opening any panel",
+      "url": "./maintenance-toggle.html",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "New Inquiries",
+      "short_name": "Inquiries",
+      "description": "Jump straight to new unread inquiries",
+      "url": "./index.html?shortcut=inquiries&filter=new",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Process Tracker",
+      "short_name": "Process",
+      "description": "Open the project process tracker",
+      "url": "./index.html?shortcut=process",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Analytics",
+      "short_name": "Analytics",
+      "description": "View inquiry analytics and stats",
+      "url": "./index.html?shortcut=analytics",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+    }
+  ],
+  "share_target": {
+    "action": "./index.html",
+    "method": "GET",
+    "params": {
+      "title": "share_title",
+      "text":  "share_text",
+      "url":   "share_url"
+    }
+  }
+}
